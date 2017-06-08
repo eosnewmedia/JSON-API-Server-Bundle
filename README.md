@@ -79,8 +79,10 @@ Each resource provider can simply be registered via the service container (tag: 
 app.resource_provider.your_provider:
     class: AppBundle\ResourceProvider\YourResourceProvider
     tags:
-      - { name: json_api.resource_provider }
+      - { name: json_api.resource_provider, type: 'myResources' }
 ```
+
+The tag attribute `type` must contain the json api resource type which will be handled by this provider.
 
 The bundle will detect these services and will use the services to configure a resource provider registry which will be
 used for the main `enm.json_api` service.
