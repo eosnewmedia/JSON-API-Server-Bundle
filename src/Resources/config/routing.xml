@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing
+        http://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <route id="enm.json_api.fetch_resources" path="/{type}" methods="GET">
+        <default key="_controller">EnmJsonApiServerBundle:JsonApi:fetchResourceCollection</default>
+    </route>
+
+    <route id="enm.json_api.fetch_resource" path="/{type}/{id}" methods="GET">
+        <default key="_controller">EnmJsonApiServerBundle:JsonApi:fetchResource</default>
+    </route>
+
+    <route id="enm.json_api.fetch_relationship" path="/{type}/{id}/relationship/{relationship}" methods="GET">
+        <default key="_controller">EnmJsonApiServerBundle:JsonApi:fetchRelationship</default>
+    </route>
+
+    <route id="enm.json_api.fetch_related" path="/{type}/{id}/{relationship}" methods="GET">
+        <default key="_controller">EnmJsonApiServerBundle:JsonApi:fetchRelated</default>
+    </route>
+
+    <route id="enm.json_api.create_resource" path="/{type}" methods="POST">
+        <default key="_controller">EnmJsonApiServerBundle:JsonApi:createResource</default>
+    </route>
+
+    <route id="enm.json_api.patch_resource" path="/{type}/{id}" methods="PATCH">
+        <default key="_controller">EnmJsonApiServerBundle:JsonApi:patchResource</default>
+    </route>
+
+    <route id="enm.json_api.delete_resource" path="/{type}/{id}" methods="DELETE">
+        <default key="_controller">EnmJsonApiServerBundle:JsonApi:deleteResource</default>
+    </route>
+</routes>

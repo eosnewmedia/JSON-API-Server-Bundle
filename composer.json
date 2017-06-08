@@ -1,0 +1,34 @@
+{
+  "name": "enm/json-api-server-bundle",
+  "description": "Symfony integration of enm/json-api-server",
+  "type": "symfony-bundle",
+  "autoload": {
+    "psr-4": {
+      "Enm\\Bundle\\JsonApi\\Server\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Enm\\Bundle\\JsonApi\\Server\\Tests\\": "tests"
+    }
+  },
+  "require": {
+    "php": ">=7.0",
+    "enm/json-api-server": "^1.0"
+  },
+  "require-dev": {
+    "symfony/symfony": "^2.7|^3.0",
+    "phpunit/phpunit": "^6.1"
+  },
+  "suggest": {
+    "symfony/proxy-manager-bridge": "Required to use lazy services."
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Philipp Marien",
+      "email": "marien@eosnewmedia.de"
+    }
+  ],
+  "minimum-stability": "stable"
+}

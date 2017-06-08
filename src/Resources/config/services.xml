@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="enm.json_api.resource_provider"
+                 class="Enm\JsonApi\Server\Provider\ResourceProviderRegistry"
+                 public="true"
+                 lazy="true"/>
+
+        <service id="enm.json_api" class="Enm\JsonApi\Server\JsonApi" public="true" lazy="true">
+            <argument type="service" id="enm.json_api.resource_provider"/>
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" on-invalid="ignore"/>
+            </call>
+        </service>
+
+        <service id="enm.json_api.exception_listener"
+                 class="Enm\Bundle\JsonApi\Server\Listener\ExceptionListener"
+                 public="true"
+                 lazy="true">
+            <argument type="service" id="enm.json_api"/>
+            <argument type="service" id="kernel"/>
+            <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException"/>
+        </service>
+    </services>
+</container>
