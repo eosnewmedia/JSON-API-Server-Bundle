@@ -1,6 +1,7 @@
 JSON API Server-Bundle
 ======================
 [![Build Status](https://travis-ci.org/eosnewmedia/JSON-API-Server-Bundle.svg?branch=master)](https://travis-ci.org/eosnewmedia/JSON-API-Server-Bundle)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/56e6d8ea-6f12-45e6-8c2c-c8a75c8a65c7/mini.png)](https://insight.sensiolabs.com/projects/56e6d8ea-6f12-45e6-8c2c-c8a75c8a65c7)
 
 The symfony integration for [`enm/json-api-server`](https://eosnewmedia.github.io/JSON-API-Server/).
 
