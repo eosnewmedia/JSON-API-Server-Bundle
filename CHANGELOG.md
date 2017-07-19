@@ -11,3 +11,4 @@ Changelog
 * added service tag "json_api_server.request_handler"
 * added bundle configuration
 * replaced all routes with route `enm.json_api`
+* added `JsonApiLoader` to configure bundle routing
