@@ -3,27 +3,46 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services
         http://symfony.com/schema/dic/services/services-1.0.xsd">
-
     <services>
-        <service id="enm.json_api.resource_provider"
-                 class="Enm\JsonApi\Server\Provider\ResourceProviderRegistry"
-                 public="true"
-                 lazy="true"/>
-
-        <service id="enm.json_api" class="Enm\JsonApi\Server\JsonApi" public="true" lazy="true">
-            <argument type="service" id="enm.json_api.resource_provider"/>
-            <call method="setEventDispatcher">
-                <argument type="service" id="event_dispatcher" on-invalid="ignore"/>
-            </call>
+        <service id="enm.json_api_server.request_handler.registry"
+                 class="Enm\JsonApi\Server\RequestHandler\RequestHandlerRegistry" public="false" lazy="true">
+            <tag name="json_api_server.request_handler"/>
         </service>
 
-        <service id="enm.json_api.exception_listener"
-                 class="Enm\Bundle\JsonApi\Server\Listener\ExceptionListener"
-                 public="true"
-                 lazy="true">
-            <argument type="service" id="enm.json_api"/>
-            <argument type="service" id="kernel"/>
-            <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException"/>
+        <service id="enm.json_api_server.request_handler.resource_provider"
+                 class="Enm\JsonApi\Server\RequestHandler\ResourceProviderRequestHandler"
+                 public="false" lazy="true">
+            <tag name="json_api_server.request_handler"/>
+        </service>
+
+        <service id="enm.json_api_server.request_handler.chain"
+                 class="Enm\JsonApi\Server\RequestHandler\RequestHandlerChain" public="false"
+                 lazy="true"/>
+
+        <service id="enm.json_api_server.server" class="Enm\JsonApi\Server\JsonApiServer" public="false" lazy="true">
+            <argument type="service" id="enm.json_api_server.request_handler.chain"/>
+            <argument type="string">%enm.json_api_server.api_prefix%</argument>
+        </service>
+
+        <service id="enm.json_api_server.server_decorator" class="Enm\Bundle\JsonApi\Server\JsonApiServerDecorator"
+                 public="false" lazy="true">
+            <argument type="service" id="enm.json_api_server.server"/>
+            <argument type="expression">service('kernel').getEnvironment() in ["dev", "test"]</argument>
+        </service>
+
+        <service id="Enm\Bundle\JsonApi\Server\Routing\JsonApiLoader">
+            <argument type="string">%enm.json_api_server.api_prefix%</argument>
+            <tag name="routing.loader"/>
+        </service>
+
+        <service id="enm.json_api_server.exception_listener"
+                 class="Enm\Bundle\JsonApi\Server\Listener\ExceptionListener" public="true" lazy="true">
+            <argument type="service" id="enm.json_api_server.server_decorator"/>
+        </service>
+
+        <service id="enm.json_api_server.api_controller" class="Enm\Bundle\JsonApi\Server\Controller\JsonApiController"
+                 public="true" lazy="true">
+            <argument type="service" id="enm.json_api_server.server_decorator"/>
         </service>
     </services>
 </container>

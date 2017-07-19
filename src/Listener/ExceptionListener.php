@@ -3,14 +3,12 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\Listener;
 
-use Enm\Bundle\JsonApi\Server\Exception\HttpException;
-use Enm\JsonApi\Server\JsonApi;
-use Enm\JsonApi\Model\Error\Error;
-use Enm\JsonApi\Model\Error\ErrorInterface;
+use Enm\Bundle\JsonApi\Server\JsonApiServerDecorator;
+use Enm\JsonApi\Exception\HttpException;
+use Enm\JsonApi\Exception\JsonApiException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
@@ -20,14 +18,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 class ExceptionListener
 {
     /**
-     * @var JsonApi
+     * @var JsonApiServerDecorator
      */
     private $jsonApi;
-
-    /**
-     * @var bool
-     */
-    private $debug = false;
 
     /**
      * @var string
@@ -35,15 +28,11 @@ class ExceptionListener
     private $routeNamePrefix = 'enm.json_api';
 
     /**
-     * @param JsonApi $jsonApi
-     * @param KernelInterface $kernel
+     * @param JsonApiServerDecorator $jsonApi
      */
-    public function __construct(JsonApi $jsonApi, KernelInterface $kernel)
+    public function __construct(JsonApiServerDecorator $jsonApi)
     {
         $this->jsonApi = $jsonApi;
-        if (in_array($kernel->getEnvironment(), ['dev', 'test'], true)) {
-            $this->debug = true;
-        }
     }
 
     /**
@@ -66,47 +55,53 @@ class ExceptionListener
     {
         $route = (string)$event->getRequest()->attributes->get('_route');
         if (strpos($route, $this->routeNamePrefix) === 0) {
-            $error = $this->createErrorFromException($event->getException());
-
-            $event->setResponse($this->jsonApi->handleError($error));
+            $event->setResponse(
+                $this->jsonApi->handleException(
+                    $this->convertThrowable($event->getException())
+                )
+            );
         }
     }
 
     /**
-     * @param \Exception $exception
-     *
-     * @return ErrorInterface
+     * @param \Throwable $throwable
+     * @return JsonApiException
      */
-    private function createErrorFromException(\Exception $exception): ErrorInterface
+    private function convertThrowable(\Throwable $throwable): JsonApiException
     {
-        if ($exception instanceof HttpExceptionInterface) {
-            $exception = new HttpException(
-                $exception->getStatusCode(),
-                $exception
-            );
+        if ($throwable instanceof JsonApiException) {
+            return $throwable;
         }
 
-        if ($exception instanceof AuthenticationException) {
-            $exception = new HttpException(
-                Response::HTTP_UNAUTHORIZED,
-                $exception
-            );
+        if ($throwable instanceof HttpExceptionInterface) {
+            return $this->createHttpException($throwable->getStatusCode(), $throwable);
         }
 
-        if ($exception instanceof AccessDeniedException) {
-            $exception = new HttpException(
-                Response::HTTP_FORBIDDEN,
-                $exception
-            );
+        if ($throwable instanceof AuthenticationException) {
+            return $this->createHttpException(Response::HTTP_UNAUTHORIZED, $throwable);
+
         }
 
-        if ($exception instanceof \InvalidArgumentException) {
-            $exception = new HttpException(
-                Response::HTTP_BAD_REQUEST,
-                $exception
-            );
+        if ($throwable instanceof AccessDeniedException) {
+            return $this->createHttpException(Response::HTTP_FORBIDDEN, $throwable);
+
         }
 
-        return Error::createFromException($exception, $this->debug);
+        return new JsonApiException($throwable->getMessage(), $throwable->getCode(), $throwable);
+    }
+
+    /**
+     * @param int $statusCode
+     * @param \Throwable $throwable
+     * @return HttpException
+     */
+    private function createHttpException(int $statusCode, \Throwable $throwable): HttpException
+    {
+        return new HttpException(
+            $statusCode,
+            $throwable->getMessage(),
+            $throwable->getCode(),
+            $throwable
+        );
     }
 }

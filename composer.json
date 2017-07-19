@@ -14,14 +14,17 @@
   },
   "require": {
     "php": ">=7.0",
-    "enm/json-api-server": "^1.0"
+    "enm/json-api-server": "^2.1",
+    "symfony/psr-http-message-bridge": "^1.0"
   },
   "require-dev": {
     "symfony/symfony": "^2.7|^3.0",
+    "zendframework/zend-diactoros": "^1.0",
     "phpunit/phpunit": "^6.1"
   },
   "suggest": {
-    "symfony/proxy-manager-bridge": "Required to use lazy services."
+    "symfony/proxy-manager-bridge": "Required to use lazy services.",
+    "zendframework/zend-diactoros": "Required to use the default psr7 factory"
   },
   "license": "MIT",
   "authors": [

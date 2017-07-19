@@ -9,6 +9,10 @@ The symfony integration for [`enm/json-api-server`](https://eosnewmedia.github.i
 
     composer require enm/json-api-server-bundle
 
+if you want to use the default implementation for psr 7 factory with symfony/psr-http-message-bridge you also have to run:
+
+    composer require zendframework/zend-diactoros
+
 *****
 
 ## Documentation
@@ -17,7 +21,9 @@ since this bundle only integrate its functionalities into your symfony project.
 
 1. [Configuration](#configuration)
     1. [AppKernel](#appkernel)
+    1. [Config](#config)
     1. [Routing](#routing)
+1. [Request Handler](#request-handler)
 1. [Resource Providers](#resource-providers)
 1. [Error Handling](#error-handling)
 
@@ -44,16 +50,29 @@ since this bundle only integrate its functionalities into your symfony project.
 
 *****
 
+### Config
+All bundle configurations are optional.
+
+```yaml
+enm_json_api_server:
+    debug: false
+    api_prefix: "/api" # configure this to use a url prefix for your json api routes: e.g. /api/{type}
+    logger: "logger" # a service implementing the psr-3 log interface to log exceptions and debug messages
+    psr7_factory: "your_psr7_factory_service" # only required if you do not want to use "zend-diactoros" for symfony request/response converting
+    http_foundation_factory: "your_http_foundation_factory_service" # only required if you do not want to use the default implementation shipped with "symfony/psr-http-message-bridge"
+```
+
+*****
+
 ### Routing
 
-```yml
+```yaml
 # app/config/routing.yml
 json_api:
   resource: "@EnmJsonApiServerBundle/Resources/config/routing.xml"
-  #prefix: /api #uncomment this line to use a url prefix for your json api routes: e.g. /api/{type}
 ```
 
-If you use the predefined routing (without prefix), the following routes will be matched to your providers:
+If you use the predefined routing (without api prefix configuration), the following routes will be matched:
 
     GET /{type}
     
@@ -68,32 +87,55 @@ If you use the predefined routing (without prefix), the following routes will be
     PATCH /{type}/{id}
     
     DELETE /{type}/{id}
+    
+    POST /{type}/{id}/relationship/{relationship}
+    
+    PATCH /{type}/{id}/relationship/{relationship}
+    
+    DELETE /{type}/{id}/relationship/{relationship}
 
 *****
 *****
+
+## Request Handler
+Each resource provider can simply be registered via the service container (tag: `json_api_server.resource_provider`):
+
+```yml
+AppBundle\RequestHandler\YourRequestHandler:
+    tags:
+      - { name: json_api_server.resource_provider, type: 'myResources' }
+      
+AppBundle\RequestHandler\YourGenericRequestHandler:
+    tags:
+      - { name: json_api_server.resource_provider }
+```
+
+The tag attribute `type` must contain the json api resource type which will be handled by this request handler or can 
+be empty to direct all requests to this handler.
+
+If all requests are handled by your request handler it should be throw a UnsupportedTypeException for unsupported 
+resource types. If a UnsupportedTypeException is thrown the bundle tries the next registered request handler.
+
+Request handlers with configured type and resource providers are always called before your generic handlers are called.
+If a request handler or resource provider matches a request the generic handlers are not called anymore.
+
+Request handlers with configured type are always called before resource providers.
+If a request handler matches a request resource providers are not called anymore.
 
 ## Resource Providers
-Each resource provider can simply be registered via the service container (tag: `json_api.resource_provider`):
+Each resource provider can simply be registered via the service container (tag: `json_api_server.resource_provider`):
 
 ```yml
 app.resource_provider.your_provider:
     class: AppBundle\ResourceProvider\YourResourceProvider
     tags:
-      - { name: json_api.resource_provider, type: 'myResources' }
+      - { name: json_api_server.resource_provider, type: 'myResources' }
 ```
 
 The tag attribute `type` must contain the json api resource type which will be handled by this provider.
-
-The bundle will detect these services and will use the services to configure a resource provider registry which will be
-used for the main `enm.json_api` service.
 
 *****
 *****
 
 ## Error Handling
-By default the bundle will handle all exceptions for you.
-
-If you don't use the default routing you have to call `Enm\Bundle\JsonApi\Server\ExceptionListener::setRouteNamePrefix($prefix)`
-to configure which routes should handled by the default exception listener.
-
-The service you have to configure is: `enm.json_api.exception_listener`.
+The bundle will handle all exceptions and convert them to valid json api error responses.

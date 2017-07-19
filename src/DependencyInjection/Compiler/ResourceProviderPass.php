@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler;
 
+use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -21,24 +22,27 @@ class ResourceProviderPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('enm.json_api.resource_provider')) {
+        if (!$container->hasDefinition('enm.json_api_server.request_handler.resource_provider')) {
             return;
         }
 
-        $definition = $container->getDefinition('enm.json_api.resource_provider');
-        $providers = $container->findTaggedServiceIds('json_api.resource_provider');
+        $handler = $container->getDefinition('enm.json_api_server.request_handler.resource_provider');
+        $resourceProviders = $container->findTaggedServiceIds('json_api_server.resource_provider');
 
         /**
          * @var string $id
          * @var array $tags
          */
-        foreach ($providers as $id => $tags) {
+        foreach ($resourceProviders as $id => $tags) {
             foreach ($tags as $attributes) {
-                $definition->addMethodCall(
-                    'addProvider',
+                if (!array_key_exists('type', $attributes)) {
+                    throw new InvalidDefinitionException('Missing "type" for a resource provider!');
+                }
+                $handler->addMethodCall(
+                    'addResourceProvider',
                     [
-                        new Reference($id),
-                        $attributes['type']
+                        $attributes['type'],
+                        new Reference($id)
                     ]
                 );
             }
