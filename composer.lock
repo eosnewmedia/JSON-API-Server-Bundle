@@ -450,16 +450,16 @@
         },
         {
             "name": "enm/json-api-server",
-            "version": "2.1.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eosnewmedia/JSON-API-Server.git",
-                "reference": "e5515dc405975413479cddb45755e50521697db1"
+                "reference": "22754ac2111f55b43e6ca01c1fdffbd8c64782f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eosnewmedia/JSON-API-Server/zipball/e5515dc405975413479cddb45755e50521697db1",
-                "reference": "e5515dc405975413479cddb45755e50521697db1",
+                "url": "https://api.github.com/repos/eosnewmedia/JSON-API-Server/zipball/22754ac2111f55b43e6ca01c1fdffbd8c64782f8",
+                "reference": "22754ac2111f55b43e6ca01c1fdffbd8c64782f8",
                 "shasum": ""
             },
             "require": {
@@ -491,7 +491,7 @@
                 }
             ],
             "description": "Abstract server-side php implementation of the json api specification (jsonapi.org)",
-            "time": "2017-07-19T08:46:06+00:00"
+            "time": "2017-07-19T16:59:10+00:00"
         },
         {
             "name": "fig/link-util",
