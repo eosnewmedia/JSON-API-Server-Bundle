@@ -9,6 +9,10 @@ The symfony integration for [`enm/json-api-server`](https://eosnewmedia.github.i
 
     composer require enm/json-api-server-bundle
 
+if you want to use the default implementation for psr 7 factory with symfony/psr-http-message-bridge you also have to run:
+
+    composer require zendframework/zend-diactoros
+
 *****
 
 ## Documentation
