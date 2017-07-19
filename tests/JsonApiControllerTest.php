@@ -1,11 +1,16 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\Tests;
 
 use Enm\Bundle\JsonApi\Server\Controller\JsonApiController;
-use Enm\JsonApi\Server\JsonApi;
+use Enm\Bundle\JsonApi\Server\DependencyInjection\EnmJsonApiServerExtension;
+use Enm\Bundle\JsonApi\Server\JsonApiServerDecorator;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Bundle\FrameworkBundle\Tests\Command\CacheClearCommand\Fixture\TestAppKernel;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,127 +20,93 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class JsonApiControllerTest extends TestCase
 {
-    public function testFetchResourceCollectionAction()
+    public function testJsonApiAction()
     {
-        $controller = $this->getController();
-        $response   = $controller->fetchResourceCollectionAction(
-          $this->buildRequest(), 'test'
-        );
-        
+        /** @var JsonApiServerDecorator $jsonApiServer */
+        $jsonApiServer = $this->createMock(JsonApiServerDecorator::class);
+
+        $controller = new JsonApiController($jsonApiServer);
+        $response = $controller->jsonApiAction(new Request());
+
         self::assertInstanceOf(Response::class, $response);
     }
-    
-    public function testFetchResource()
+
+    public function testControllerService()
     {
-        $controller = $this->getController();
-        $response   = $controller->fetchResourceAction(
-          $this->buildRequest(), 'test', '1'
+        $container = new ContainerBuilder();
+
+        $container->set(
+            'kernel',
+            new TestAppKernel('dev', false)
         );
-        
-        self::assertInstanceOf(Response::class, $response);
-    }
-    
-    public function testFetchRelationship()
-    {
-        $controller = $this->getController();
-        $response   = $controller->fetchRelationshipAction(
-          $this->buildRequest(), 'test', '1', 'parent'
-        );
-        
-        self::assertInstanceOf(Response::class, $response);
-    }
-    
-    public function testFetchRelated()
-    {
-        $controller = $this->getController();
-        $response   = $controller->fetchRelatedAction(
-          $this->buildRequest(), 'test', '1', 'parent'
-        );
-        
-        self::assertInstanceOf(Response::class, $response);
-    }
-    
-    public function testCreateResource()
-    {
-        $controller = $this->getController();
-        $response   = $controller->createResourceAction(
-          $this->buildDataRequest('test', ''), 'test'
-        );
-        
-        self::assertInstanceOf(Response::class, $response);
-    }
-    
-    public function testPatchResource()
-    {
-        $controller = $this->getController();
-        $response   = $controller->patchResourceAction(
-          $this->buildDataRequest('test', 'test-1'), 'test', 'test-1'
-        );
-        
-        self::assertInstanceOf(Response::class, $response);
-    }
-    
-    public function testDeleteResource()
-    {
-        $controller = $this->getController();
-        $response   = $controller->deleteResourceAction(
-          $this->buildRequest(), 'test', 'test-1'
-        );
-        
-        self::assertInstanceOf(Response::class, $response);
-    }
-    
-    /**
-     * @return JsonApiController
-     */
-    private function getController(): JsonApiController
-    {
-        $builder = new ContainerBuilder();
-        $builder->set('enm.json_api', $this->createMock(JsonApi::class));
-        $builder->compile();
-        
-        $controller = new JsonApiController();
-        $controller->setContainer($builder);
-        
-        return $controller;
-    }
-    
-    /**
-     * @param array $query
-     *
-     * @return Request
-     */
-    private function buildRequest(array $query = []): Request
-    {
-        $request = new Request($query);
-        $request->headers->set('Content-Type', 'application/vnd.api+json');
-        
-        return $request;
-    }
-    
-    /**
-     * @param string $type
-     * @param string $id
-     *
-     * @return Request
-     */
-    private function buildDataRequest(string $type, string $id): Request
-    {
-        $request = new Request(
-          [],
-          [],
-          [],
-          [],
-          [],
-          [],
-          json_encode(
+
+        $container->set('app.psr7_factory', new DiactorosFactory());
+        $container->set('app.http_foundation_factory', new HttpFoundationFactory());
+
+        $extension = new EnmJsonApiServerExtension();
+        $extension->load(
             [
-              'data' => ['type' => $type, 'id' => $id],
-            ]
-          )
+                'enm_json_api_server' => []
+            ],
+            $container
         );
-        $request->headers->set('Content-Type', 'application/vnd.api+json');
-        
-        return $request;
+        $container->compile();
+
+        $request = Request::create(
+            'http://example.com/api/invalidType',
+            'GET',
+            [],
+            [],
+            [],
+            [
+                'HTTP_CONTENT_TYPE' => 'application/vnd.api+json',
+            ]
+        );
+
+        $response = $container->get('enm.json_api_server.api_controller')->jsonApiAction($request);
+        self::assertEquals(404, $response->getStatusCode());
+    }
+
+    public function testControllerServiceWithFullConfiguration()
+    {
+        $container = new ContainerBuilder();
+
+        $container->set(
+            'kernel',
+            new TestAppKernel('dev', false)
+        );
+
+        $container->set('app.psr7_factory', new DiactorosFactory());
+        $container->set('app.http_foundation_factory', new HttpFoundationFactory());
+        $container->set('logger', new NullLogger());
+
+        $extension = new EnmJsonApiServerExtension();
+        $extension->load(
+            [
+                'enm_json_api_server' => [
+                    'debug' => true,
+                    'api_prefix' => '/api',
+                    'logger' => 'logger',
+                    'psr7_factory' => 'app.psr7_factory',
+                    'http_foundation_factory' => 'app.http_foundation_factory',
+                ]
+            ],
+            $container
+        );
+        $container->compile();
+
+        $request = Request::create(
+            'http://example.com/api/invalidType',
+            'GET',
+            [],
+            [],
+            [],
+            [
+                'HTTP_CONTENT_TYPE' => 'application/vnd.api+json',
+            ]
+        );
+
+        $response = $container->get('enm.json_api_server.api_controller')->jsonApiAction($request);
+        self::assertEquals(404, $response->getStatusCode());
     }
 }
