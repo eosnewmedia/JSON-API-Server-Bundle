@@ -30,7 +30,8 @@
             <argument type="expression">service('kernel').getEnvironment() in ["dev", "test"]</argument>
         </service>
 
-        <service id="Enm\Bundle\JsonApi\Server\Routing\JsonApiLoader">
+        <service id="enm.json_api_server.routing.json_api_loader"
+                 class="Enm\Bundle\JsonApi\Server\Routing\JsonApiLoader">
             <argument type="string">%enm.json_api_server.api_prefix%</argument>
             <tag name="routing.loader"/>
         </service>
