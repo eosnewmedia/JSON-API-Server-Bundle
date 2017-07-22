@@ -98,16 +98,16 @@ If you use the predefined routing (without api prefix configuration), the follow
 *****
 
 ## Request Handler
-Each resource provider can simply be registered via the service container (tag: `json_api_server.resource_provider`):
+Each request handler can simply be registered via the service container (tag: `json_api_server.request_handler`):
 
 ```yml
 AppBundle\RequestHandler\YourRequestHandler:
     tags:
-      - { name: json_api_server.resource_provider, type: 'myResources' }
+      - { name: json_api_server.request_handler, type: 'myResources' }
       
 AppBundle\RequestHandler\YourGenericRequestHandler:
     tags:
-      - { name: json_api_server.resource_provider }
+      - { name: json_api_server.request_handler }
 ```
 
 The tag attribute `type` must contain the json api resource type which will be handled by this request handler or can 
