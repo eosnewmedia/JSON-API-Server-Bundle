@@ -5,10 +5,10 @@ namespace Enm\Bundle\JsonApi\Server\Tests;
 
 use Enm\Bundle\JsonApi\Server\Controller\JsonApiController;
 use Enm\Bundle\JsonApi\Server\DependencyInjection\EnmJsonApiServerExtension;
+use Enm\Bundle\JsonApi\Server\HttpMessageFactory\HttpMessageFactory;
 use Enm\Bundle\JsonApi\Server\JsonApiServerDecorator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bundle\FrameworkBundle\Tests\Command\CacheClearCommand\Fixture\TestAppKernel;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -40,7 +40,7 @@ class JsonApiControllerTest extends TestCase
             new TestAppKernel('dev', false)
         );
 
-        $container->set('app.psr7_factory', new DiactorosFactory());
+        $container->set('app.psr7_factory', new HttpMessageFactory());
         $container->set('app.http_foundation_factory', new HttpFoundationFactory());
 
         $extension = new EnmJsonApiServerExtension();
@@ -76,7 +76,7 @@ class JsonApiControllerTest extends TestCase
             new TestAppKernel('dev', false)
         );
 
-        $container->set('app.psr7_factory', new DiactorosFactory());
+        $container->set('app.psr7_factory', new HttpMessageFactory());
         $container->set('app.http_foundation_factory', new HttpFoundationFactory());
         $container->set('logger', new NullLogger());
 

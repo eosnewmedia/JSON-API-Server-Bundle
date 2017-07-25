@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server;
 
+use Enm\Bundle\JsonApi\Server\HttpMessageFactory\HttpMessageFactory;
 use Enm\JsonApi\Server\JsonApiServer;
-use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
@@ -82,7 +82,7 @@ class JsonApiServerDecorator
     protected function getPsr7Factory(): HttpMessageFactoryInterface
     {
         if (!$this->psr7Factory instanceof HttpMessageFactoryInterface) {
-            $this->psr7Factory = new DiactorosFactory();
+            $this->psr7Factory = new HttpMessageFactory();
         }
         return $this->psr7Factory;
     }

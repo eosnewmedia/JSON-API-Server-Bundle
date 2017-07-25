@@ -9,10 +9,6 @@ The symfony integration for [`enm/json-api-server`](https://eosnewmedia.github.i
 
     composer require enm/json-api-server-bundle
 
-if you want to use the default implementation for psr 7 factory with symfony/psr-http-message-bridge you also have to run:
-
-    composer require zendframework/zend-diactoros
-
 *****
 
 ## Documentation
@@ -58,7 +54,7 @@ enm_json_api_server:
     debug: false
     api_prefix: "/api" # configure this to use a url prefix for your json api routes: e.g. /api/{type}
     logger: "logger" # a service implementing the psr-3 log interface to log exceptions and debug messages
-    psr7_factory: "your_psr7_factory_service" # only required if you do not want to use "zend-diactoros" for symfony request/response converting
+    psr7_factory: "your_psr7_factory_service" # only required if you do not want to use a different for symfony request/response converting
     http_foundation_factory: "your_http_foundation_factory_service" # only required if you do not want to use the default implementation shipped with "symfony/psr-http-message-bridge"
 ```
 
