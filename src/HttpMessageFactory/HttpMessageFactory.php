@@ -29,7 +29,7 @@ class HttpMessageFactory implements HttpMessageFactoryInterface
             $symfonyRequest->getMethod(),
             $symfonyRequest->getUri(),
             $symfonyRequest->headers->all(),
-            $symfonyRequest->getContent(true),
+            $symfonyRequest->getContent(),
             '1.1',
             $symfonyRequest->server->all()
         );
