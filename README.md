@@ -21,6 +21,7 @@ since this bundle only integrate its functionalities into your symfony project.
     1. [Routing](#routing)
 1. [Request Handler](#request-handler)
 1. [Resource Providers](#resource-providers)
+1. [Pagination](#pagination)
 1. [Error Handling](#error-handling)
 
 *****
@@ -56,6 +57,8 @@ enm_json_api_server:
     logger: "logger" # a service implementing the psr-3 log interface to log exceptions and debug messages
     psr7_factory: "your_psr7_factory_service" # only required if you do not want to use a different for symfony request/response converting
     http_foundation_factory: "your_http_foundation_factory_service" # only required if you do not want to use the default implementation shipped with "symfony/psr-http-message-bridge"
+    pagination:
+        limit: 10 # limit have to be an integer bigger than 0; if not set 25 is the default
 ```
 
 *****
@@ -129,6 +132,33 @@ app.resource_provider.your_provider:
 ```
 
 The tag attribute `type` must contain the json api resource type which will be handled by this provider.
+
+*****
+*****
+
+## Pagination
+
+If you want to use offset based pagination (links) in your project, your Request Handler can use the 
+`Enm\JsonApi\Server\Pagination\PaginationTrait` and can be configured over the service container to use offset based pagination:
+
+```yml
+# services.yml:
+AppBundle\RequestHandler\YourRequestHandler:
+    tags:
+      - { name: json_api_server.request_handler, type: 'myResources' }
+    calls:
+      - ['setPaginationLinkGenerator', ['@enm.json_api_server.pagination.offset_based']]
+```
+
+The service for offset based pagination links is: `enm.json_api_server.pagination.offset_based`
+
+By default the limit for pagination is 25, but you can overwrite this in your global config:
+
+```yaml
+enm_json_api_server:
+    pagination:
+        limit: 10 # limit have to be an integer bigger than 0
+```
 
 *****
 *****
