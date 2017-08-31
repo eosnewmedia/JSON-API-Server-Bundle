@@ -48,7 +48,7 @@
 
         <service id="enm.json_api_server.pagination.offset_based"
                  class="Enm\JsonApi\Server\Pagination\OffsetPaginationLinkGenerator"
-                 public="true"
+                 public="false"
                  lazy="true">
             <argument>%enm.json_api_server.pagination.limit%</argument>
         </service>

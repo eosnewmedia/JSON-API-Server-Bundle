@@ -7,7 +7,6 @@ use Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler\RequestHandlerPass;
 use Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler\ResourceProviderPass;
 use Enm\Bundle\JsonApi\Server\DependencyInjection\EnmJsonApiServerExtension;
 use Enm\Bundle\JsonApi\Server\EnmJsonApiServerBundle;
-use Enm\JsonApi\Server\Pagination\PaginationLinkGeneratorInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -45,11 +44,7 @@ class BundleTest extends TestCase
 
         self::assertTrue($containsResourceProviderPass);
         self::assertTrue($containsRequestHandlerPass);
-        self::assertTrue($builder->has('enm.json_api_server.pagination.offset_based'));
-        self::assertInstanceOf(
-            PaginationLinkGeneratorInterface::class,
-            $builder->get('enm.json_api_server.pagination.offset_based')
-        );
+        self::assertTrue($builder->hasDefinition('enm.json_api_server.pagination.offset_based'));
     }
 
     /**
