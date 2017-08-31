@@ -45,5 +45,12 @@
                  public="true" lazy="true">
             <argument type="service" id="enm.json_api_server.server_decorator"/>
         </service>
+
+        <service id="enm.json_api_server.pagination.offset_based"
+                 class="Enm\JsonApi\Server\Pagination\OffsetPaginationLinkGenerator"
+                 public="false"
+                 lazy="true">
+            <argument>%enm.json_api_server.pagination.limit%</argument>
+        </service>
     </services>
 </container>

@@ -1,7 +1,11 @@
 Changelog
 =========
 
-## Version 2.0.0
+## 2.2.0
+* added configuration `pagination.limit`
+* added service `enm.json_api_server.pagination.offset_based` 
+
+## 2.0.0
 * updated dependency `enm/json-api-server` to version `2.0.0`
 * replaced all controller actions with "jsonApiAction"
 * added `JsonApiServerDecorator` to use symfony http foundation with json api

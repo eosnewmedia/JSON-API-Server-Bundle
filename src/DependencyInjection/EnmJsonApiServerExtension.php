@@ -23,7 +23,14 @@ class EnmJsonApiServerExtension extends ConfigurableExtension
      */
     protected function loadInternal(array $mergedConfig, ContainerBuilder $container)
     {
-        $container->setParameter('enm.json_api_server.api_prefix', $mergedConfig['api_prefix']);
+        $container->setParameter(
+            'enm.json_api_server.api_prefix',
+            (string)$mergedConfig['api_prefix']
+        );
+        $container->setParameter(
+            'enm.json_api_server.pagination.limit',
+            (int)$mergedConfig['pagination']['limit']
+        );
 
         $loader = new XmlFileLoader(
             $container,
