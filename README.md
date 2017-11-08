@@ -51,6 +51,7 @@ since this bundle only integrate its functionalities into your symfony project.
 All bundle configurations are optional.
 
 ```yaml
+# app/config/services.yml | config/packages/(dev/|prod/|test/|)enm_json_api.yaml
 enm_json_api_server:
     debug: false
     api_prefix: "/api" # configure this to use a url prefix for your json api routes: e.g. /api/{type}
@@ -66,7 +67,7 @@ enm_json_api_server:
 ### Routing
 
 ```yaml
-# app/config/routing.yml
+# app/config/routing.yml | config/routes.yaml
 json_api:
   resource: "@EnmJsonApiServerBundle/Resources/config/routing.xml"
 ```

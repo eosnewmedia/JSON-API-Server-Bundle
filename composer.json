@@ -14,10 +14,10 @@
   },
   "require": {
     "php": ">=7.0",
-    "symfony/dependency-injection": "^2.7|^3.0|^4.0.0-BETA1@dev",
-    "symfony/config": "^2.7|^3.0|^4.0.0-BETA1@dev",
-    "symfony/http-kernel": "^2.7|^3.0|^4.0.0-BETA1@dev",
-    "symfony/event-dispatcher": "^2.7|^3.0|^4.0.0-BETA1@dev",
+    "symfony/dependency-injection": "^2.7|^3.0|^4.0@beta",
+    "symfony/config": "^2.7|^3.0|^4.0@beta",
+    "symfony/http-kernel": "^2.7|^3.0|^4.0@beta",
+    "symfony/event-dispatcher": "^2.7|^3.0|^4.0@beta",
     "enm/json-api-server": "^2.2",
     "symfony/psr-http-message-bridge": "^1.0",
     "guzzlehttp/psr7": "^1.0"
