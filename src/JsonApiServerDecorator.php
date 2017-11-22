@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server;
 
+use Enm\Bundle\JsonApi\Server\HttpFoundationFactory\HttpFoundationFactory;
 use Enm\Bundle\JsonApi\Server\HttpMessageFactory\HttpMessageFactory;
 use Enm\JsonApi\Server\JsonApiServer;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -125,12 +125,12 @@ class JsonApiServerDecorator
         );
     }
 
+    /**
+     * @param ResponseInterface $psrResponse
+     * @return Response
+     */
     private function buildSymfonyResponse(ResponseInterface $psrResponse): Response
     {
-        $response = $this->getHttpFoundationFactory()->createResponse($psrResponse);
-        // set the content type because the symfony response removes the content type for empty responses
-        $response->headers->set('Content-Type', JsonApiServer::CONTENT_TYPE);
-
-        return $response;
+        return $this->getHttpFoundationFactory()->createResponse($psrResponse);
     }
 }
