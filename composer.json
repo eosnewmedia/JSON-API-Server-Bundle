@@ -14,20 +14,16 @@
   },
   "require": {
     "php": ">=7.0",
-    "symfony/dependency-injection": "^2.7|^3.0",
-    "symfony/config": "^2.7|^3.0",
-    "symfony/http-kernel": "^2.7|^3.0",
-    "symfony/event-dispatcher": "^2.7|^3.0",
+    "symfony/dependency-injection": "^2.7|^3.0|^4.0",
+    "symfony/config": "^2.7|^3.0|^4.0",
+    "symfony/http-kernel": "^2.7|^3.0|^4.0",
+    "symfony/event-dispatcher": "^2.7|^3.0|^4.0",
     "enm/json-api-server": "^2.2",
     "symfony/psr-http-message-bridge": "^1.0",
     "guzzlehttp/psr7": "^1.0"
   },
   "require-dev": {
-    "symfony/symfony": "^2.7|^3.0",
     "phpunit/phpunit": "^6.1"
-  },
-  "suggest": {
-    "symfony/proxy-manager-bridge": "Required to use lazy services."
   },
   "license": "MIT",
   "authors": [
