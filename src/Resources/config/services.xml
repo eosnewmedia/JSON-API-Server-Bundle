@@ -24,6 +24,10 @@
             <argument type="string">%enm.json_api_server.api_prefix%</argument>
         </service>
 
+        <service id="Enm\JsonApi\Server\JsonApiServer" alias="enm.json_api_server.server" public="false"/>
+
+        <service id="Enm\JsonApi\JsonApiInterface" alias="enm.json_api_server.server" public="false"/>
+
         <service id="enm.json_api_server.server_decorator" class="Enm\Bundle\JsonApi\Server\JsonApiServerDecorator"
                  public="false" lazy="true">
             <argument type="service" id="enm.json_api_server.server"/>

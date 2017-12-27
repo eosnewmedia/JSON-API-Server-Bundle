@@ -29,7 +29,7 @@ since this bundle only integrate its functionalities into your symfony project.
 
 ## Configuration
 
-### AppKernel
+### AppKernel (Symfony <= 3.3)
 
 ```php
     public function registerBundles()
