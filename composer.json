@@ -18,6 +18,7 @@
     "symfony/config": "^2.7|^3.0|^4.0",
     "symfony/http-kernel": "^2.7|^3.0|^4.0",
     "symfony/event-dispatcher": "^2.7|^3.0|^4.0",
+    "symfony/expression-language": "^2.7|^3.0|^4.0",
     "enm/json-api-server": "^2.2",
     "symfony/psr-http-message-bridge": "^1.0",
     "guzzlehttp/psr7": "^1.0"
