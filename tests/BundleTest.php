@@ -18,6 +18,7 @@ class BundleTest extends TestCase
     public function testEnmJsonApiBundle()
     {
         $builder = new ContainerBuilder();
+        $builder->setParameter('kernel.environment', 'dev');
         $bundle = new EnmJsonApiServerBundle();
         $bundle->build($builder);
 
@@ -44,7 +45,7 @@ class BundleTest extends TestCase
 
         self::assertTrue($containsResourceProviderPass);
         self::assertTrue($containsRequestHandlerPass);
-        self::assertTrue($builder->hasDefinition('enm.json_api_server.pagination.offset_based'));
+        self::assertTrue($builder->hasAlias('enm.json_api_server.pagination.offset_based'));
     }
 
     /**

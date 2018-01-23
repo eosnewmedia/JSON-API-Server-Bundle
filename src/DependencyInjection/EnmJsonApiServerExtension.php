@@ -3,9 +3,19 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\DependencyInjection;
 
-use Symfony\Component\Config\FileLocator;
+use Enm\Bundle\JsonApi\Server\Controller\JsonApiController;
+use Enm\Bundle\JsonApi\Server\JsonApiServerDecorator;
+use Enm\Bundle\JsonApi\Server\Listener\ExceptionListener;
+use Enm\Bundle\JsonApi\Server\Routing\JsonApiLoader;
+use Enm\JsonApi\JsonApiInterface;
+use Enm\JsonApi\Server\JsonApiServer;
+use Enm\JsonApi\Server\Pagination\OffsetPaginationLinkGenerator;
+use Enm\JsonApi\Server\Pagination\PaginationLinkGeneratorInterface;
+use Enm\JsonApi\Server\RequestHandler\RequestHandlerChain;
+use Enm\JsonApi\Server\RequestHandler\RequestHandlerInterface;
+use Enm\JsonApi\Server\RequestHandler\RequestHandlerRegistry;
+use Enm\JsonApi\Server\RequestHandler\ResourceProviderRequestHandler;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
@@ -32,46 +42,116 @@ class EnmJsonApiServerExtension extends ConfigurableExtension
             (int)$mergedConfig['pagination']['limit']
         );
 
-        $loader = new XmlFileLoader(
-            $container,
-            new FileLocator(__DIR__ . '/../Resources/config')
-        );
-        $loader->load('services.xml');
+        $this->configureRequestHandlers($container);
+        $this->configureServer($container, $mergedConfig);
 
-        if ($mergedConfig['debug']) {
-            $container->getDefinition('enm.json_api_server.server_decorator')
+        $container->register(JsonApiLoader::class)
+            ->setPublic(true)
+            ->addArgument((string)$mergedConfig['api_prefix'])
+            ->addTag('routing.loader');
+
+        $container->register(ExceptionListener::class)
+            ->setPublic(true)
+            ->addArgument(new Reference(JsonApiServerDecorator::class))
+            ->addTag('kernel.event_listener', ['event' => 'kernel.exception', 'method' => 'onKernelException']);
+
+        $container->register(JsonApiController::class)
+            ->setPublic(true)
+            ->addArgument(new Reference(JsonApiServerDecorator::class));
+
+        $container->register(OffsetPaginationLinkGenerator::class)
+            ->setPublic(false)
+            ->addArgument((int)$mergedConfig['pagination']['limit']);
+        $container->setAlias('enm.json_api_server.pagination.offset_based', OffsetPaginationLinkGenerator::class);
+        $container->setAlias(PaginationLinkGeneratorInterface::class, OffsetPaginationLinkGenerator::class);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @throws \Exception
+     */
+    protected function configureRequestHandlers(ContainerBuilder $container)
+    {
+        $container->register(RequestHandlerRegistry::class)->setPublic(false);
+        //@deprecated service id will be removed in 3.0
+        $container->setAlias(
+            'enm.json_api_server.request_handler.registry',
+            RequestHandlerRegistry::class
+        );
+
+        $container->register(ResourceProviderRequestHandler::class)->setPublic(false);
+        //@deprecated service id will be removed in 3.0
+        $container->setAlias(
+            'enm.json_api_server.request_handler.resource_provider',
+            ResourceProviderRequestHandler::class
+        );
+
+        $container->register(RequestHandlerChain::class)
+            ->setPublic(false)
+            ->addMethodCall('addRequestHandler', [new Reference(RequestHandlerRegistry::class)])
+            ->addMethodCall('addRequestHandler', [new Reference(ResourceProviderRequestHandler::class)]);
+        $container->setAlias(RequestHandlerInterface::class, RequestHandlerChain::class);
+        //@deprecated service id will be removed in 3.0
+        $container->setAlias('enm.json_api_server.request_handler.chain', RequestHandlerChain::class);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param array $config
+     * @throws \Exception
+     */
+    protected function configureServer(ContainerBuilder $container, array $config)
+    {
+        $container->register(JsonApiServer::class)
+            ->setPublic(false)
+            ->addArgument(new Reference(RequestHandlerInterface::class))
+            ->addArgument((string)$config['api_prefix']);
+        $container->setAlias(JsonApiInterface::class, JsonApiServer::class);
+        //@deprecated service id will be removed in 3.0
+        $container->setAlias('enm.json_api_server.server', JsonApiServer::class);
+
+
+        $container->register(JsonApiServerDecorator::class)
+            ->setPublic(false)
+            ->addArgument(new Reference(JsonApiServer::class))
+            ->addArgument(\in_array($container->getParameter('kernel.environment'), ['dev', 'test'], true));
+        //@deprecated service id will be removed in 3.0
+        $container->setAlias('enm.json_api_server.server_decorator', JsonApiServerDecorator::class);
+
+        if ($config['debug']) {
+            $container->getDefinition(JsonApiServerDecorator::class)
                 ->addMethodCall(
                     'setDebug',
                     [true]
                 );
         }
 
-        if ($mergedConfig['logger'] !== null) {
-            $container->getDefinition('enm.json_api_server.server')
+        if ($config['logger'] !== null) {
+            $container->getDefinition(JsonApiServer::class)
                 ->addMethodCall(
                     'setLogger',
                     [
-                        new Reference($mergedConfig['logger'])
+                        new Reference($config['logger'])
                     ]
                 );
         }
 
-        if ($mergedConfig['psr7_factory'] !== null) {
-            $container->getDefinition('enm.json_api_server.server_decorator')
+        if ($config['psr7_factory'] !== null) {
+            $container->getDefinition(JsonApiServerDecorator::class)
                 ->addMethodCall(
                     'setPsr7Factory',
                     [
-                        new Reference($mergedConfig['psr7_factory'])
+                        new Reference($config['psr7_factory'])
                     ]
                 );
         }
 
-        if ($mergedConfig['http_foundation_factory'] !== null) {
-            $container->getDefinition('enm.json_api_server.server_decorator')
+        if ($config['http_foundation_factory'] !== null) {
+            $container->getDefinition(JsonApiServerDecorator::class)
                 ->addMethodCall(
                     'setHttpFoundationFactory',
                     [
-                        new Reference($mergedConfig['http_foundation_factory'])
+                        new Reference($config['http_foundation_factory'])
                     ]
                 );
         }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\Tests;
 
+use Enm\Bundle\JsonApi\Server\Controller\JsonApiController;
 use Enm\Bundle\JsonApi\Server\Routing\JsonApiLoader;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\FileLocator;
@@ -26,7 +27,7 @@ class RoutingTest extends TestCase
         );
 
         self::assertEquals(
-            'enm.json_api_server.api_controller:jsonApiAction',
+            JsonApiController::class . ':jsonApiAction',
             $router->match('/test')['_controller']
         );
         self::assertEquals(
@@ -35,7 +36,7 @@ class RoutingTest extends TestCase
         );
 
         self::assertEquals(
-            'enm.json_api_server.api_controller:jsonApiAction',
+            JsonApiController::class . ':jsonApiAction',
             $router->match('/test/1')['_controller']
         );
         self::assertEquals(
@@ -44,7 +45,7 @@ class RoutingTest extends TestCase
         );
 
         self::assertEquals(
-            'enm.json_api_server.api_controller:jsonApiAction',
+            JsonApiController::class . ':jsonApiAction',
             $router->match('/test/1/relationship/parent')['_controller']
         );
         self::assertEquals(
@@ -53,7 +54,7 @@ class RoutingTest extends TestCase
         );
 
         self::assertEquals(
-            'enm.json_api_server.api_controller:jsonApiAction',
+            JsonApiController::class . ':jsonApiAction',
             $router->match('/test/1/parent')['_controller']
         );
         self::assertEquals(
@@ -70,7 +71,7 @@ class RoutingTest extends TestCase
         );
 
         self::assertEquals(
-            'enm.json_api_server.api_controller:jsonApiAction',
+            JsonApiController::class . ':jsonApiAction',
             $router->match('/api/test')['_controller']
         );
     }
@@ -84,7 +85,7 @@ class RoutingTest extends TestCase
         $request = Request::create('http://example.com/tests/1');
 
         self::assertEquals(
-            'enm.json_api_server.api_controller:jsonApiAction',
+            JsonApiController::class . ':jsonApiAction',
             $router->matchRequest($request)['_controller']
         );
         self::assertEquals(
@@ -153,7 +154,7 @@ class RoutingTest extends TestCase
         $router = new Router($loader, 'routing.xml', ['cache_dir' => null]);
 
         self::assertEquals(
-            'enm.json_api_server.api_controller:jsonApiAction',
+            JsonApiController::class . ':jsonApiAction',
             $router->match('/api/test')['_controller']
         );
     }

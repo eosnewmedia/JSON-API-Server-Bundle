@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler;
 
+use Enm\JsonApi\Server\RequestHandler\ResourceProviderRequestHandler;
 use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -22,11 +23,11 @@ class ResourceProviderPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('enm.json_api_server.request_handler.resource_provider')) {
+        if (!$container->hasDefinition(ResourceProviderRequestHandler::class)) {
             return;
         }
 
-        $handler = $container->getDefinition('enm.json_api_server.request_handler.resource_provider');
+        $handler = $container->getDefinition(ResourceProviderRequestHandler::class);
         $resourceProviders = $container->findTaggedServiceIds('json_api_server.resource_provider');
 
         /**

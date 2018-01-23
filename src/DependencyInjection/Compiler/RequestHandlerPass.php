@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler;
 
+use Enm\JsonApi\Server\RequestHandler\RequestHandlerChain;
+use Enm\JsonApi\Server\RequestHandler\RequestHandlerRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -21,16 +23,16 @@ class RequestHandlerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('enm.json_api_server.request_handler.registry')) {
+        if (!$container->hasDefinition(RequestHandlerRegistry::class)) {
             return;
         }
 
-        if (!$container->hasDefinition('enm.json_api_server.request_handler.chain')) {
+        if (!$container->hasDefinition(RequestHandlerChain::class)) {
             return;
         }
 
-        $registry = $container->getDefinition('enm.json_api_server.request_handler.registry');
-        $chain = $container->getDefinition('enm.json_api_server.request_handler.chain');
+        $registry = $container->getDefinition(RequestHandlerRegistry::class);
+        $chain = $container->getDefinition(RequestHandlerChain::class);
 
         $handlers = $container->findTaggedServiceIds('json_api_server.request_handler');
 
