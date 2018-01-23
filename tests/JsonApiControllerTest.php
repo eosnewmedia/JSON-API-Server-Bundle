@@ -34,11 +34,7 @@ class JsonApiControllerTest extends TestCase
     public function testControllerService()
     {
         $container = new ContainerBuilder();
-
-        $container->set(
-            'kernel',
-            new TestAppKernel('dev', false)
-        );
+        $container->setParameter('kernel.environment', 'dev');
 
         $container->set('app.psr7_factory', new HttpMessageFactory());
         $container->set('app.http_foundation_factory', new HttpFoundationFactory());
@@ -63,18 +59,14 @@ class JsonApiControllerTest extends TestCase
             ]
         );
 
-        $response = $container->get('enm.json_api_server.api_controller')->jsonApiAction($request);
+        $response = $container->get(JsonApiController::class)->jsonApiAction($request);
         self::assertEquals(404, $response->getStatusCode());
     }
 
     public function testControllerServiceWithFullConfiguration()
     {
         $container = new ContainerBuilder();
-
-        $container->set(
-            'kernel',
-            new TestAppKernel('dev', false)
-        );
+        $container->setParameter('kernel.environment', 'dev');
 
         $container->set('app.psr7_factory', new HttpMessageFactory());
         $container->set('app.http_foundation_factory', new HttpFoundationFactory());
@@ -106,7 +98,7 @@ class JsonApiControllerTest extends TestCase
             ]
         );
 
-        $response = $container->get('enm.json_api_server.api_controller')->jsonApiAction($request);
+        $response = $container->get(JsonApiController::class)->jsonApiAction($request);
         self::assertEquals(404, $response->getStatusCode());
     }
 }

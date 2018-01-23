@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\Routing;
 
+use Enm\Bundle\JsonApi\Server\Controller\JsonApiController;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -38,7 +39,7 @@ class JsonApiLoader extends Loader
             new Route(
                 '/{type}/{id}/{relationshipFirstPart}/{relationshipSecondPart}',
                 [
-                    '_controller' => 'enm.json_api_server.api_controller:jsonApiAction',
+                    '_controller' => JsonApiController::class.':jsonApiAction',
                     'id' => '',
                     'relationshipFirstPart' => '',
                     'relationshipSecondPart' => '',

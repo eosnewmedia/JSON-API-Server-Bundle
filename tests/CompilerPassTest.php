@@ -6,15 +6,16 @@ namespace Enm\Bundle\JsonApi\Server\Tests;
 use Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler\RequestHandlerPass;
 use Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler\ResourceProviderPass;
 use Enm\Bundle\JsonApi\Server\DependencyInjection\EnmJsonApiServerExtension;
+use Enm\Bundle\JsonApi\Server\EnmJsonApiServerBundle;
 use Enm\JsonApi\Exception\UnsupportedTypeException;
 use Enm\JsonApi\Model\Document\DocumentInterface;
+use Enm\JsonApi\Server\JsonApiServer;
 use Enm\JsonApi\Server\Model\Request\FetchRequestInterface;
 use Enm\JsonApi\Server\RequestHandler\RequestHandlerChain;
 use Enm\JsonApi\Server\RequestHandler\RequestHandlerInterface;
 use Enm\JsonApi\Server\RequestHandler\ResourceProviderRequestHandler;
 use Enm\JsonApi\Server\ResourceProvider\ResourceProviderInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Tests\Command\CacheClearCommand\Fixture\TestAppKernel;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -47,15 +48,12 @@ class CompilerPassTest extends TestCase
     public function testCompilerPass()
     {
         $builder = new ContainerBuilder();
-        $builder->addDefinitions(
-            [
-                'kernel' => new Definition(
-                    TestAppKernel::class, ['dev', true]
-                )
-            ]
-        );
-        $extension = new EnmJsonApiServerExtension();
-        $extension->load([], $builder);
+        $builder->setParameter('kernel.environment', 'dev');
+
+        (new EnmJsonApiServerExtension())->load([], $builder);
+
+        $builder->getDefinition(JsonApiServer::class)->setPublic(true);
+        $builder->getDefinition(RequestHandlerChain::class)->setPublic(true);
 
         $this->addTestProvider($builder);
         $this->addTestHandler($builder);
@@ -66,10 +64,13 @@ class CompilerPassTest extends TestCase
         $requestHandlerPass = new RequestHandlerPass();
         $requestHandlerPass->process($builder);
 
-        // initialize json api service to configure request handlers (json api aware)
-        $builder->get('enm.json_api_server.server');
+        $builder->compile();
 
-        $chain = $builder->get('enm.json_api_server.request_handler.chain');
+        // initialize json api service to configure request handlers (json api aware)
+        $builder->get(JsonApiServer::class);
+
+        $chain = $builder->get(RequestHandlerChain::class);
+
 
         /** @var FetchRequestInterface $handlerTestRequest */
         $handlerTestRequest = $this->createConfiguredMock(
@@ -118,10 +119,7 @@ class CompilerPassTest extends TestCase
     {
         $pass = new ResourceProviderPass();
         $builder = new ContainerBuilder();
-        $builder->setDefinition(
-            'enm.json_api_server.request_handler.resource_provider',
-            new Definition(ResourceProviderRequestHandler::class)
-        );
+        $builder->register(ResourceProviderRequestHandler::class);
 
         $testDefinition = new Definition($this->createMock(ResourceProviderInterface::class));
         $testDefinition->addTag('json_api_server.resource_provider');
@@ -134,10 +132,7 @@ class CompilerPassTest extends TestCase
     {
         $pass = new RequestHandlerPass();
         $builder = new ContainerBuilder();
-        $builder->setDefinition(
-            'enm.json_api_server.request_handler.chain',
-            new Definition(RequestHandlerChain::class)
-        );
+        $builder->register(RequestHandlerChain::class);
 
         $this->addTestHandler($builder);
         $pass->process($builder);
@@ -149,10 +144,7 @@ class CompilerPassTest extends TestCase
     {
         $pass = new RequestHandlerPass();
         $builder = new ContainerBuilder();
-        $builder->setDefinition(
-            'enm.json_api_server.request_handler.registry',
-            new Definition(RequestHandlerChain::class)
-        );
+        $builder->register(RequestHandlerChain::class);
 
         $this->addTestHandler($builder);
         $pass->process($builder);
