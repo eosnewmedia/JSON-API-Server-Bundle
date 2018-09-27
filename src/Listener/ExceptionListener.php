@@ -3,14 +3,12 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\Listener;
 
-use Enm\Bundle\JsonApi\Server\JsonApiServerDecorator;
+use Enm\Bundle\JsonApi\Server\Response\JsonApiResponse;
 use Enm\JsonApi\Exception\HttpException;
 use Enm\JsonApi\Exception\JsonApiException;
-use Symfony\Component\HttpFoundation\Response;
+use Enm\JsonApi\Server\JsonApiServer;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 /**
  * @author Philipp Marien <marien@eosnewmedia.de>
@@ -18,31 +16,30 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 class ExceptionListener
 {
     /**
-     * @var JsonApiServerDecorator
+     * @var string
+     */
+    private $routeNamePrefix;
+
+    /**
+     * @var bool
+     */
+    private $debug;
+
+    /**
+     * @var JsonApiServer
      */
     private $jsonApi;
 
     /**
-     * @var string
-     */
-    private $routeNamePrefix = 'enm.json_api';
-
-    /**
-     * @param JsonApiServerDecorator $jsonApi
-     */
-    public function __construct(JsonApiServerDecorator $jsonApi)
-    {
-        $this->jsonApi = $jsonApi;
-    }
-
-    /**
      * @param string $routeNamePrefix
-     *
-     * @return void
+     * @param bool $debug
+     * @param JsonApiServer $jsonApi
      */
-    public function setRouteNamePrefix(string $routeNamePrefix)
+    public function __construct(string $routeNamePrefix, bool $debug, JsonApiServer $jsonApi)
     {
         $this->routeNamePrefix = $routeNamePrefix;
+        $this->debug = $debug;
+        $this->jsonApi = $jsonApi;
     }
 
     /**
@@ -51,13 +48,18 @@ class ExceptionListener
      * @return void
      * @throws \Exception
      */
-    public function onKernelException(GetResponseForExceptionEvent $event)
+    public function onKernelException(GetResponseForExceptionEvent $event): void
     {
-        $route = (string)$event->getRequest()->attributes->get('_route');
-        if (strpos($route, $this->routeNamePrefix) === 0) {
+        $apiRoute = strpos((string)$event->getRequest()->attributes->get('_route'), $this->routeNamePrefix) === 0;
+        $apiType = $event->getRequest()->headers->get('Content-Type') === 'application/vnd.api+json';
+
+        if ($apiRoute || $apiType) {
+            $response = $this->jsonApi->handleException($this->convertThrowable($event->getException()), $this->debug);
             $event->setResponse(
-                $this->jsonApi->handleException(
-                    $this->convertThrowable($event->getException())
+                new JsonApiResponse(
+                    $this->jsonApi->createResponseBody($response),
+                    $response->status(),
+                    $response->headers()->all()
                 )
             );
         }
@@ -74,34 +76,14 @@ class ExceptionListener
         }
 
         if ($throwable instanceof HttpExceptionInterface) {
-            return $this->createHttpException($throwable->getStatusCode(), $throwable);
-        }
-
-        if ($throwable instanceof AuthenticationException) {
-            return $this->createHttpException(Response::HTTP_UNAUTHORIZED, $throwable);
-
-        }
-
-        if ($throwable instanceof AccessDeniedException) {
-            return $this->createHttpException(Response::HTTP_FORBIDDEN, $throwable);
-
+            return new HttpException(
+                $throwable->getStatusCode(),
+                $throwable->getMessage(),
+                $throwable->getCode(),
+                $throwable
+            );
         }
 
         return new JsonApiException($throwable->getMessage(), $throwable->getCode(), $throwable);
-    }
-
-    /**
-     * @param int $statusCode
-     * @param \Throwable $throwable
-     * @return HttpException
-     */
-    private function createHttpException(int $statusCode, \Throwable $throwable): HttpException
-    {
-        return new HttpException(
-            $statusCode,
-            $throwable->getMessage(),
-            $throwable->getCode(),
-            $throwable
-        );
     }
 }

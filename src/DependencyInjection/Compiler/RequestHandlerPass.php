@@ -3,8 +3,7 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler;
 
-use Enm\JsonApi\Server\RequestHandler\RequestHandlerChain;
-use Enm\JsonApi\Server\RequestHandler\RequestHandlerRegistry;
+use Enm\JsonApi\Server\JsonApiServer;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -21,19 +20,13 @@ class RequestHandlerPass implements CompilerPassInterface
      *
      * @throws \Exception
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition(RequestHandlerRegistry::class)) {
+        if (!$container->hasDefinition(JsonApiServer::class)) {
             return;
         }
 
-        if (!$container->hasDefinition(RequestHandlerChain::class)) {
-            return;
-        }
-
-        $registry = $container->getDefinition(RequestHandlerRegistry::class);
-        $chain = $container->getDefinition(RequestHandlerChain::class);
-
+        $server = $container->getDefinition(JsonApiServer::class);
         $handlers = $container->findTaggedServiceIds('json_api_server.request_handler');
 
         /**
@@ -42,22 +35,7 @@ class RequestHandlerPass implements CompilerPassInterface
          */
         foreach ($handlers as $id => $tags) {
             foreach ($tags as $attributes) {
-                if (array_key_exists('type', $attributes)) {
-                    $registry->addMethodCall(
-                        'addRequestHandler',
-                        [
-                            (string)$attributes['type'],
-                            new Reference($id)
-                        ]
-                    );
-                } else {
-                    $chain->addMethodCall(
-                        'addRequestHandler',
-                        [
-                            new Reference($id)
-                        ]
-                    );
-                }
+                $server->addMethodCall('addHandler', [(string)$attributes['type'], new Reference($id)]);
             }
         }
     }

@@ -5,7 +5,6 @@ namespace Enm\Bundle\JsonApi\Server\Response;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Enm\JsonApi\Server\JsonApiServer;
 
 /**
  * @author Philipp Marien <marien@eosnewmedia.de>
@@ -23,11 +22,11 @@ class JsonApiResponse extends Response
      *
      * @return $this
      */
-    public function prepare(Request $request)
+    public function prepare(Request $request): self
     {
         parent::prepare($request);
         // fix the content type for json api standard
-        $this->headers->set('Content-Type', JsonApiServer::CONTENT_TYPE);
+        $this->headers->set('Content-Type', 'application/vnd.api+json');
 
         return $this;
     }
