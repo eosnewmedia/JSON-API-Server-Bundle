@@ -1,6 +1,15 @@
 Changelog
 =========
 
+## 3.0.0
+* updated dependency `enm/json-api-server` to version `3.0.0`
+* removed configuration `pagination.limit`
+* removed service `enm.json_api_server.pagination.offset_based` 
+* removed `JsonApiServerDecorator` 
+* removed `JsonApiLoader` 
+* removed `ResourceProviderPass`
+* removed http factories
+
 ## 2.2.0
 * added configuration `pagination.limit`
 * added service `enm.json_api_server.pagination.offset_based` 

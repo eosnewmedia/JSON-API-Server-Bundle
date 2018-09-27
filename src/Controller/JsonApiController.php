@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 namespace Enm\Bundle\JsonApi\Server\Controller;
 
-use Enm\Bundle\JsonApi\Server\JsonApiServerDecorator;
+use Enm\Bundle\JsonApi\Server\Response\JsonApiResponse;
+use Enm\JsonApi\Model\Request\Request as JsonApiRequest;
+use Enm\JsonApi\Server\JsonApiServer;
+use GuzzleHttp\Psr7\Uri;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,24 +16,51 @@ use Symfony\Component\HttpFoundation\Response;
 class JsonApiController
 {
     /**
-     * @var JsonApiServerDecorator
+     * @var string|null
+     */
+    private $prefix;
+
+    /**
+     * @var JsonApiServer
      */
     private $jsonApi;
 
     /**
-     * @param JsonApiServerDecorator $jsonApi
+     * @param null|string $prefix
+     * @param JsonApiServer $jsonApi
      */
-    public function __construct(JsonApiServerDecorator $jsonApi)
+    public function __construct(?string $prefix, JsonApiServer $jsonApi)
     {
+        $this->prefix = $prefix;
         $this->jsonApi = $jsonApi;
     }
 
     /**
      * @param Request $request
      * @return Response
+     * @throws \Exception
      */
-    public function jsonApiAction(Request $request): Response
+    public function handle(Request $request): Response
     {
-        return $this->jsonApi->handleHttpRequest($request);
+        $apiRequest = new JsonApiRequest(
+            $request->getMethod(),
+            new Uri($request->getUri()),
+            $this->jsonApi->createRequestBody((string)$request->getContent()),
+            $this->prefix
+        );
+        foreach ($request->headers->all() as $key => $value) {
+            if (\is_array($value) && \count($value) === 1) {
+                $value = $value[0];
+            }
+            $apiRequest->headers()->set($key, $value);
+        }
+
+        $response = $this->jsonApi->handleRequest($apiRequest);
+
+        return new JsonApiResponse(
+            $this->jsonApi->createResponseBody($response),
+            $response->status(),
+            $response->headers()->all()
+        );
     }
 }

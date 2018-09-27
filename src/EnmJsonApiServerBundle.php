@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Enm\Bundle\JsonApi\Server;
 
 use Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler\RequestHandlerPass;
-use Enm\Bundle\JsonApi\Server\DependencyInjection\Compiler\ResourceProviderPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -23,9 +22,8 @@ class EnmJsonApiServerBundle extends Bundle
      *
      * @param ContainerBuilder $container A ContainerBuilder instance
      */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
-        $container->addCompilerPass(new ResourceProviderPass());
         $container->addCompilerPass(new RequestHandlerPass());
     }
 }

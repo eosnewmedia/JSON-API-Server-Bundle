@@ -4,5 +4,64 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="." type="enm.json_api_server"/>
+    <route id="enm.json_api.fetch.resources"
+           methods="GET"
+           path="/{type}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.fetch.resource"
+           methods="GET"
+           path="/{type}/{id}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.fetch.relationship"
+           methods="GET"
+           path="/{type}/{id}/relationship/{relationship}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.fetch.related"
+           methods="GET"
+           path="/{type}/{id}/{relationship}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.create.resource"
+           methods="POST"
+           path="/{type}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.modify.resource"
+           methods="PATCH"
+           path="/{type}/{id}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.delete.resource"
+           methods="DELETE"
+           path="/{type}/{id}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.add.related"
+           methods="POST"
+           path="/{type}/{id}/relationship/{relationship}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.modify.relationship"
+           methods="PATCH"
+           path="/{type}/{id}/relationship/{relationship}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
+    <route id="enm.json_api.remove.related"
+           methods="DELETE"
+           path="/{type}/{id}/relationship/{relationship}"
+           controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
+    />
+
 </routes>

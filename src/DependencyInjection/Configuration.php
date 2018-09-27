@@ -25,27 +25,13 @@ class Configuration implements ConfigurationInterface
             ->defaultFalse()
             ->info('Can be used to enable debug functionality (extended json api errors).');
 
-        $root->scalarNode('api_prefix')
-            ->defaultValue('')
-            ->info('The api prefix for generated and handled uri\'s.');
-
-        $root->scalarNode('logger')
+        $root->scalarNode('url_prefix')
             ->defaultNull()
-            ->info('The service id of the psr-3 logger which should be used.');
+            ->info('The api url prefix for generated and handled uri\'s.');
 
-        $root->scalarNode('psr7_factory')
-            ->defaultNull()
-            ->info('The service id of the http message factory which should be used.');
-
-        $root->scalarNode('http_foundation_factory')
-            ->defaultNull()
-            ->info('The service id of the http foundation factory which should be used.');
-
-        $pagination = $root->arrayNode('pagination')->addDefaultsIfNotSet()->children();
-        $pagination->integerNode('limit')
-            ->defaultValue(25)
-            ->min(1)
-            ->info('The default value for the pagination parameter "limit", 25 if not configured.');
+        $root->scalarNode('route_name_prefix')
+            ->defaultValue('enm.json_api')
+            ->info('The route name prefix for the symfony routes');
 
         return $treeBuilder;
     }
