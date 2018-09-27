@@ -49,6 +49,9 @@ class JsonApiController
             $this->prefix
         );
         foreach ($request->headers->all() as $key => $value) {
+            if (\is_array($value) && \count($value) === 1) {
+                $value = $value[0];
+            }
             $apiRequest->headers()->set($key, $value);
         }
 
