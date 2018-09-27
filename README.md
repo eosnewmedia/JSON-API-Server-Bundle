@@ -15,7 +15,7 @@ You should read the docs of [`enm/json-api-server`](https://eosnewmedia.github.i
 since this bundle only integrate its functionalities into your symfony project.
 
 1. [Configuration](#configuration)
-    1. [AppKernel](#appkernel)
+    1. [Bundles](#bundles)
     1. [Config](#config)
     1. [Routing](#routing)
 1. [Request Handler](#request-handler)
@@ -26,20 +26,17 @@ since this bundle only integrate its functionalities into your symfony project.
 
 ## Configuration
 
-### AppKernel (Symfony <= 3.3)
+### Bundles
 
 ```php
-    public function registerBundles()
-    {
-        $bundles = [
-            // ...
-            new Enm\Bundle\JsonApi\Server\EnmJsonApiServerBundle(),
-        ];
-        
-        // ...
-        
-        return $bundles;
-    }
+<?php
+// confing/bundles.php
+return [
+    // ...
+    Enm\Bundle\JsonApi\Server\EnmJsonApiServerBundle::class => ['all' => true],
+    // ...
+];
+
 ```
 
 *****
@@ -48,12 +45,11 @@ since this bundle only integrate its functionalities into your symfony project.
 All bundle configurations are optional.
 
 ```yaml
-# app/config/services.yml | config/packages/(dev/|prod/|test/|)enm_json_api.yaml
+# config/packages/(dev/|prod/|test/|)enm_json_api.yaml
 enm_json_api_server:
     debug: false
-    api_prefix: "/api" # configure this to use a url prefix for your json api routes: e.g. /api/{type}
-    pagination:
-        limit: 10 # limit have to be an integer bigger than 0; if not set 25 is the default
+    url_prefix: '' # configure this to use a url prefix for your json api routes: e.g. /api/{type}. only needed if a prefix is defined in your routing
+    route_name_prefix: 'enm.json_api' # Prefix of the route names in symfony (for exception handling). only needed if a nam prefix is defined in your routing
 ```
 
 *****
