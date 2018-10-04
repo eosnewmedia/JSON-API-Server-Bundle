@@ -68,7 +68,7 @@ If you use the predefined routing (without api prefix configuration), the follow
     
     GET /{type}/{id}
     
-    GET /{type}/{id}/relationship/{relationship}
+    GET /{type}/{id}/relationships/{relationship}
     
     GET /{type}/{id}/{relationship}
     
@@ -78,11 +78,11 @@ If you use the predefined routing (without api prefix configuration), the follow
     
     DELETE /{type}/{id}
     
-    POST /{type}/{id}/relationship/{relationship}
+    POST /{type}/{id}/relationships/{relationship}
     
-    PATCH /{type}/{id}/relationship/{relationship}
+    PATCH /{type}/{id}/relationships/{relationship}
     
-    DELETE /{type}/{id}/relationship/{relationship}
+    DELETE /{type}/{id}/relationships/{relationship}
 
 *****
 

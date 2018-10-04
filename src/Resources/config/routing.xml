@@ -18,7 +18,7 @@
 
     <route id="enm.json_api.fetch.relationship"
            methods="GET"
-           path="/{type}/{id}/relationship/{relationship}"
+           path="/{type}/{id}/relationships/{relationship}"
            controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
     />
 
@@ -48,19 +48,19 @@
 
     <route id="enm.json_api.add.related"
            methods="POST"
-           path="/{type}/{id}/relationship/{relationship}"
+           path="/{type}/{id}/relationships/{relationship}"
            controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
     />
 
     <route id="enm.json_api.modify.relationship"
            methods="PATCH"
-           path="/{type}/{id}/relationship/{relationship}"
+           path="/{type}/{id}/relationships/{relationship}"
            controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
     />
 
     <route id="enm.json_api.remove.related"
            methods="DELETE"
-           path="/{type}/{id}/relationship/{relationship}"
+           path="/{type}/{id}/relationships/{relationship}"
            controller="Enm\Bundle\JsonApi\Server\Controller\JsonApiController::handle"
     />
 
