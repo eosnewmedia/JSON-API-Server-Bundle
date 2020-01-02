@@ -19,8 +19,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $root = $treeBuilder->root('enm_json_api_server')->children();
+        $treeBuilder = new TreeBuilder('enm_json_api_server');
+        $root = $treeBuilder->getRootNode()->children();
         $root->booleanNode('debug')
             ->defaultFalse()
             ->info('Can be used to enable debug functionality (extended json api errors).');
